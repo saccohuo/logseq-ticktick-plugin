@@ -1,12 +1,13 @@
 import { SettingSchemaDesc } from "@logseq/libs/dist/LSPlugin";
-import { getAllLabels, getAllProjects } from "./helpersTodoist";
+import { getAllLabels, getAllProjects } from "./helpersTicktick";
 
+// 获取所有Project
 export const callSettings = async () => {
-  let allProjects: any[] = await getAllProjects();
+  let allProjects: any[] = await getAllProjects();  // 鉴权，异步中的同步，等执行完，返回 response.data
   allProjects = allProjects.map(
-    (i: { name: string; id: string }) => `${i.name} (${i.id})`
+      (i: { name: string; id: string }) => `${i.name} (${i.id})` // 从 allProjects 获取对象的 id,name 转换成 string 赋给 allProjects（数组）
   );
-  allProjects.unshift(`---`);
+  allProjects.unshift(`---`); // 在头部加元素，类似 append 反过来
 
   let allLabels: any[] = await getAllLabels();
   allLabels = allLabels.map(
@@ -17,7 +18,7 @@ export const callSettings = async () => {
   let appendLogseqUriOptions = ["Disable", "Link title", "Link description"];
   let appendLogseqUriDefault = "Disable";
   // migrate `appendLogseqUriOptions` to new setting
-  if (
+    if ( // Optional chaining (?.)，可选链式操作符，前面属性不存在的话，不报异常（不加 ? 的话，会报异常），只是 undefined
     logseq.settings?.appendLogseqUri !== undefined &&
     typeof logseq.settings?.appendLogseqUri === "boolean"
   ) {
@@ -27,24 +28,24 @@ export const callSettings = async () => {
     logseq.updateSettings({ appendLogseqUri: appendLogseqUriDefault });
   }
 
-  let appendTodoistUrlOptions = ["Disable", "Link content", "Append link"];
-  let appendTodoistUrlDefault = "Disable";
-  // migrate `appendTodoistUrlDefault` to new setting
+  let appendTicktickUrlOptions = ["Disable", "Link content", "Append link"];
+  let appendTicktickUrlDefault = "Disable";
+  // migrate `appendTicktickUrlDefault` to new setting
   if (
-    logseq.settings?.appendTodoistUrl !== undefined &&
-    typeof logseq.settings?.appendTodoistUrl === "boolean"
+    logseq.settings?.appendTicktickUrl !== undefined &&
+    typeof logseq.settings?.appendTicktickUrl === "boolean"
   ) {
-    if (logseq.settings.appendTodoistUrl) {
-      appendTodoistUrlDefault = "Link content";
+    if (logseq.settings.appendTicktickUrl) {
+      appendTicktickUrlDefault = "Link content";
     }
-    logseq.updateSettings({ appendTodoistUrl: appendTodoistUrlDefault });
+    logseq.updateSettings({ appendTicktickUrl: appendTicktickUrlDefault });
   }
 
   const settings: SettingSchemaDesc[] = [
     {
       key: "apiToken",
       title: "API token",
-      description: "Your API token, generated from the Todoist Developer page.",
+      description: "Your API token, generated from the Ticktick Developer page.",
       type: "string",
       default: "",
     },
@@ -75,9 +76,9 @@ export const callSettings = async () => {
     },
     {
       key: "clearTasks",
-      title: "Pulling Tasks - Clear task after pulling them into Todoist",
+      title: "Pulling Tasks - Clear task after pulling them into Ticktick",
       description:
-        "Indicate if you would like to clear the tasks in Todoist after pulling them over.",
+        "Indicate if you would like to clear the tasks in Ticktick after pulling them over.",
       type: "boolean",
       default: true,
     },
@@ -95,7 +96,7 @@ export const callSettings = async () => {
       key: "sendDefaultDeadline",
       title: "Sending Tasks - Default Deadline",
       description:
-        "Set deadline as TODAY for all tasks sent to Todoist. If set, sending tasks will not allow any customisation.",
+        "Set deadline as TODAY for all tasks sent to Ticktick. If set, sending tasks will not allow any customisation.",
       type: "boolean",
       default: false,
     },
@@ -103,7 +104,7 @@ export const callSettings = async () => {
       key: "sendDefaultLabel",
       title: "Sending Tasks - Default Label",
       description:
-        "Set label for all tasks sent to Todoist. If set, sending tasks will not allow any customisation.",
+        "Set label for all tasks sent to Ticktick. If set, sending tasks will not allow any customisation.",
       type: "enum",
       enumPicker: "select",
       enumChoices: allLabels,
@@ -113,21 +114,21 @@ export const callSettings = async () => {
       key: "appendLogseqUri",
       title: "Append Logseq URI to Description",
       description:
-        "If enabled, all tasks sent to Todoist will have the Logseq URI added to the task's description.",
+        "If enabled, all tasks sent to Ticktick will have the Logseq URI added to the task's description.",
       type: "enum",
       enumPicker: "select",
       enumChoices: appendLogseqUriOptions,
       default: appendLogseqUriDefault,
     },
     {
-      key: "appendTodoistUrl",
-      title: "Append Todoist URL to Block",
+      key: "appendTicktickUrl",
+      title: "Append Ticktick URL to Block",
       description:
-        "If enabled, all tasks sent to Todoist will its Todoist url added to the block after sending.",
+        "If enabled, all tasks sent to Ticktick will its Ticktick url added to the block after sending.",
       type: "enum",
       enumPicker: "select",
-      enumChoices: appendTodoistUrlOptions,
-      default: appendTodoistUrlDefault,
+      enumChoices: appendTicktickUrlOptions,
+      default: appendTicktickUrlDefault,
     },
     {
       key: "appOrWebLink",

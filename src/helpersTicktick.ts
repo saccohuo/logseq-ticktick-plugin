@@ -14,7 +14,7 @@ function getYYYYMMDD(d: Date) {
 export async function getAllProjects() {
   try {
     const response = await axios.get(
-      `https://api.todoist.com/rest/v2/projects`,
+      `https://api.ticktick.com/rest/v2/projects`,
       {
         headers: {
           Authorization: `Bearer ${logseq.settings!.apiToken}`,
@@ -37,9 +37,9 @@ export async function getAllProjects() {
 // Get all labels
 export const getAllLabels = async () => {
   try {
-    const response = await axios.get(`https://api.todoist.com/rest/v2/labels`, {
+    const response = await axios.get(`https://api.ticktick.com/rest/v2/labels`, {
       headers: {
-        Authorization: `Bearer ${logseq.settings!.apiToken}`,
+        Authorization: `Bearer ${logseq.settings!.apiToken}`, //logseq 是 logseq API 的全局对象
       },
     });
 
@@ -58,7 +58,7 @@ export const getAllLabels = async () => {
 // Get attachments
 async function getAttachments(taskId: number) {
   const response = await axios({
-    url: `https://api.todoist.com/rest/v2/comments`,
+    url: `https://api.ticktick.com/rest/v2/comments`,
     method: "get",
     headers: {
       Authorization: `Bearer ${logseq.settings?.apiToken}`,
@@ -77,12 +77,12 @@ async function getAttachments(taskId: number) {
     .join(", ");
 }
 
-// Mark tasks as complete in Todoist
+// Mark tasks as complete in Ticktick
 export const clearTasks = async (tasksIdArr: number[]) => {
   for (let i of tasksIdArr) {
     console.log(`Clearing ${i}`);
     await axios({
-      url: `https://api.todoist.com/rest/v2/tasks/${i}/close`,
+      url: `https://api.ticktick.com/rest/v2/tasks/${i}/close`,
       method: "POST",
       headers: {
         Authorization: `Bearer ${logseq.settings?.apiToken}`,
@@ -94,7 +94,7 @@ export const clearTasks = async (tasksIdArr: number[]) => {
 // Get project name from Project ID
 export const getProjectName = async (projectId: string) => {
   const project = await axios.get(
-    `https://api.todoist.com/rest/v2/projects/${projectId}`,
+    `https://api.ticktick.com/rest/v2/projects/${projectId}`,
     {
       headers: {
         Authorization: `Bearer ${logseq.settings?.apiToken}`,
@@ -131,7 +131,7 @@ export function removePrefix(content: string) {
   return newContent;
 }
 
-export function removePrefixWhenAddingTodoistUrl(content: string) {
+export function removePrefixWhenAddingTicktickUrl(content: string) {
   const prefixes = ["TODO", "DOING", "NOW", "LATER", "WAITING"];
   let newContent: string = content;
   let isTaskBlk = false;
@@ -157,7 +157,7 @@ export const pullTasks = async (condition: string) => {
   if (condition === "today") {
     response = await axios({
       method: "get",
-      url: "https://api.todoist.com/rest/v2/tasks",
+      url: "https://api.ticktick.com/rest/v2/tasks",
       params: {
         filter: getYYYYMMDD(new Date()),
       },
@@ -168,7 +168,7 @@ export const pullTasks = async (condition: string) => {
   } else {
     response = await axios({
       method: "get",
-      url: "https://api.todoist.com/rest/v2/tasks",
+      url: "https://api.ticktick.com/rest/v2/tasks",
       params: {
         project_id: condition,
       },
@@ -185,7 +185,7 @@ export const pullTasks = async (condition: string) => {
     for (let t of response.data) {
       if (!t.parent_id) {
         tasksArr.push({
-          todoist_id: t.id,
+          ticktick_id: t.id,
           project_id: t.project_id,
           content: `TODO ${t.content} ${
             t.comment_count ? `(${await getAttachments(t.id)})` : ""
@@ -209,7 +209,7 @@ ${t.description ? "description:: " + t.description : ""}`,
         return t.parent_id;
       })
       .map((t: Task) => ({
-        todoist_id: t.id,
+        ticktick_id: t.id,
         content: t.content,
         parent_id: t.parent_id,
         description: t.description,
@@ -219,7 +219,7 @@ ${t.description ? "description:: " + t.description : ""}`,
     // Subsume sub tasks under main tasks
     for (let m of tasksArr) {
       for (let s of subTasks) {
-        if (s.parent_id === m.todoist_id) {
+        if (s.parent_id === m.ticktick_id) {
           m.children.push({
             content: `TODO ${s.content}
 ${
@@ -236,7 +236,7 @@ ${s.description ? "description:: " + s.description : ""}`,
       }
     }
 
-    // Map id from tasks without Prefix to mark as complete in Todoist
+    // Map id from tasks without Prefix to mark as complete in Ticktick
     let tasksIdArr = response.data.map((i: Id) => i.id);
 
     return {
@@ -250,7 +250,7 @@ export async function sendTaskFunction(data: object) {
   try {
     const response = await axios({
       method: "post",
-      url: "https://api.todoist.com/rest/v2/tasks",
+      url: "https://api.ticktick.com/rest/v2/tasks",
       data,
       headers: {
         Authorization: `Bearer ${logseq.settings!.apiToken}`,

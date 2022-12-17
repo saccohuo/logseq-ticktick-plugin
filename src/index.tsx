@@ -6,36 +6,36 @@ import { insertTasksIntoLogseq } from "./helpersLogseq";
 import {
   getIdFromProjectAndLabel,
   removePrefix,
-  removePrefixWhenAddingTodoistUrl,
+  removePrefixWhenAddingTicktickUrl,
   sendTaskFunction,
-} from "./helpersTodoist";
+} from "./helpersTicktick";
 import { sendTask } from "./sendTask";
 
 const main = async () => {
-  console.log("logseq-todoist-plugin loaded");
+  console.log("logseq-ticktick-plugin loaded");
 
-  callSettings();
+  callSettings(); // 更新 logseq 的一些 settings
 
-  handleClosePopup();
+  handleClosePopup(); //插件安装还是设置界面对 ESC 的监听
 
   // Register push command
-  logseq.Editor.registerSlashCommand("todoist - send task", async (e) => {
+  logseq.Editor.registerSlashCommand("ticktick - send task", async (e) => { //增加一个 operarion 到 slash 命令
     const {
       sendDefaultProject,
       sendDefaultLabel,
       sendDefaultDeadline,
       appendLogseqUri,
-      appendTodoistUrl,
+      appendTicktickUrl,
     } = logseq.settings!;
 
     const currGraphName =
       (await logseq.App.getCurrentGraph())?.name ?? "logseq";
     const currBlk = (await logseq.Editor.getBlock(e.uuid)) as BlockEntity;
 
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000)); //等待 2s
 
     if (!sendDefaultProject && !sendDefaultLabel && !sendDefaultDeadline) {
-      await sendTask(currBlk.content, currBlk.uuid, currGraphName);
+      await sendTask(currBlk.content, currBlk.uuid, currGraphName); // 弹窗 sendTask
     } else {
       let blockUri = `logseq://graph/${currGraphName}?block-id=${currBlk.uuid}`;
       let taskTitle =
@@ -72,14 +72,14 @@ const main = async () => {
 
       let newBlockContent = currBlk.content;
 
-      if (appendTodoistUrl === "Link content") {
-        newBlockContent = `${removePrefixWhenAddingTodoistUrl(
+      if (appendTicktickUrl === "Link content") {
+        newBlockContent = `${removePrefixWhenAddingTicktickUrl(
           currBlk.content
         )}(${sendResponse.url})`;
       }
 
-      if (appendTodoistUrl === "Append link") {
-        newBlockContent = `${currBlk.content} [(todoist)](${sendResponse.url})`;
+      if (appendTicktickUrl === "Append link") {
+        newBlockContent = `${currBlk.content} [(ticktick)](${sendResponse.url})`;
       }
       await logseq.Editor.updateBlock(currBlk.uuid, newBlockContent);
 
@@ -94,7 +94,7 @@ const main = async () => {
   });
 
   // Register pull command
-  logseq.Editor.registerSlashCommand("todoist - pull tasks", async () => {
+  logseq.Editor.registerSlashCommand("ticktick - pull tasks", async () => {
     const id = getIdFromProjectAndLabel(logseq.settings!.pullDefaultProject);
 
     if (id.startsWith("Error")) {
@@ -108,17 +108,17 @@ const main = async () => {
 
   // Register pull today's tasks command
   logseq.Editor.registerSlashCommand(
-    `todoist - pull today's tasks`,
+    `ticktick - pull today's tasks`,
     async () => {
       await insertTasksIntoLogseq("today");
     }
   );
 
-  // For use with daily template
-  logseq.App.onMacroRendererSlotted(async function ({ slot, payload }) {
+  // For use with daily template // 提供 renderer 的模板
+  logseq.App.onMacroRendererSlotted(async function ({ slot, payload }) { //UI slot
     const uuid = payload.uuid;
     const [type] = payload.arguments;
-    if (!type.startsWith(":todoist_")) return;
+    if (!type.startsWith(":ticktick_")) return;
     await insertTasksIntoLogseq("today");
     await logseq.Editor.removeBlock(uuid);
   });

@@ -1,5 +1,5 @@
 import { BlockEntity } from "@logseq/libs/dist/LSPlugin.user";
-import { clearTasks, getProjectName, pullTasks } from "./helpersTodoist";
+import { clearTasks, getProjectName, pullTasks } from "./helpersTicktick";
 
 export async function insertTasksIntoLogseq(condition: string) {
   let tasksContentArr: { tasksArr: any[]; tasksIdArr: any[] };
@@ -94,11 +94,11 @@ export async function insertTasksIntoLogseq(condition: string) {
 
     if (logseq.settings?.clearTasks) {
       try {
-        // Mark tasks as complete in Todoist
+        // Mark tasks as complete in Ticktick
         clearTasks(tasksContentArr.tasksIdArr);
       } catch (e) {
         logseq.App.showMsg(
-          "There is an error removing your tasks from Todoist. Please remove them directly from Todoist."
+          "There is an error removing your tasks from Ticktick. Please remove them directly from Ticktick."
         );
         return;
       }

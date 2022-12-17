@@ -1,7 +1,8 @@
+// 只在 sendtask 用到了
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "@logseq/libs";
-import { getAllLabels, getAllProjects, removePrefix } from "./helpersTodoist";
+import { getAllLabels, getAllProjects, removePrefix } from "./helpersTicktick";
 import axios from "axios";
 
 export default function App(props: {
@@ -69,7 +70,7 @@ export default function App(props: {
 
     const sendResponse = await axios({
       method: "post",
-      url: "https://api.todoist.com/rest/v2/tasks",
+      url: "https://api.ticktick.com/rest/v2/tasks",
       data,
       headers: {
         Authorization: `Bearer ${logseq.settings!.apiToken}`,
@@ -78,12 +79,12 @@ export default function App(props: {
 
     let newBlockContent = props.content;
 
-    if (logseq.settings!.appendTodoistUrl === "Link content") {
+    if (logseq.settings!.appendTicktickUrl === "Link content") {
       newBlockContent = `[${props.content}](${sendResponse.data.url})`;
     }
 
-    if (logseq.settings!.appendTodoistUrl === "Append link") {
-      newBlockContent = `${props.content} [(todoist)](${sendResponse.data.url})`;
+    if (logseq.settings!.appendTicktickUrl === "Append link") {
+      newBlockContent = `${props.content} [(ticktick)](${sendResponse.data.url})`;
     }
 
     await logseq.Editor.updateBlock(props.uuid, newBlockContent);
@@ -97,7 +98,7 @@ export default function App(props: {
     });
     logseq.App.showMsg(`
          [:div.p-2
-           [:h1 "Task sent to your Todoist Inbox!"]
+           [:h1 "Task sent to your Ticktick Inbox!"]
            [:h2.text-xl "${props.content}"]]`);
   };
 
@@ -178,7 +179,7 @@ export default function App(props: {
               name="due_string"
               onChange={handleInput}
               value={formData.due_string}
-              placeholder="You can use Todoist's Human defined task due date (ex.: 'next Monday', 'Tomorrow'). Value is set using local (not UTC) time."
+              placeholder="You can use Ticktick's Human defined task due date (ex.: 'next Monday', 'Tomorrow'). Value is set using local (not UTC) time."
             />
           </div>
         </div>
